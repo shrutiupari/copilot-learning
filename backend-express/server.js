@@ -13,10 +13,22 @@ app.get('/tasks', (req, res) => {
 });
 
 app.post('/tasks', (req, res) => {
+  const { title, priority } = req.body;
+  const allowedPriorities = ['low', 'medium', 'high'];
+
+  if (typeof title !== 'string' || !title.trim()) {
+    return res.status(400).json({ error: 'Title is required' });
+  }
+
+  if (priority !== undefined && !allowedPriorities.includes(priority)) {
+    return res.status(400).json({ error: 'Priority must be one of: low, medium, high' });
+  }
+
   const task = {
     id: Date.now(),
-    title: req.body.title,
-    completed: false
+    title: title.trim(),
+    completed: false,
+    priority: priority && allowedPriorities.includes(priority) ? priority : 'medium'
   };
 
   tasks.push(task);
@@ -58,6 +70,36 @@ app.patch('/tasks/:id/title', async (req, res) => {
   task.title = title.trim();
 
   res.json(task);
+});
+
+// API route: partial update a task
+// Expects any of { title?: string, completed?: boolean, priority?: 'low'|'medium'|'high' } in request body
+app.patch('/tasks/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid task id' });
+    const { title, completed, priority } = req.body;
+    const allowedPriorities = ['low', 'medium', 'high'];
+
+    if (title !== undefined && (typeof title !== 'string' || !title.trim())) {
+      return res.status(400).json({ error: 'Title, if provided, must be a non-empty string' });
+    }
+    if (completed !== undefined && typeof completed !== 'boolean') {
+      return res.status(400).json({ error: 'Completed, if provided, must be boolean' });
+    }
+    if (priority !== undefined && !allowedPriorities.includes(priority)) {
+      return res.status(400).json({ error: 'Priority, if provided, must be one of low, medium, high' });
+    }
+    const task = tasks.find(t => t.id === id);
+    if (!task) return res.status(404).json({ error: 'Task not found' });
+    if (title !== undefined) task.title = title.trim();
+    if (completed !== undefined) task.completed = completed;
+    if (priority !== undefined) task.priority = priority;
+    res.json(task);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 app.listen(5000, () => {
