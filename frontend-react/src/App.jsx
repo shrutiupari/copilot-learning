@@ -5,29 +5,51 @@ function App() {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState('medium');
 
+  /**
+   * Load tasks from backend.
+   * Kept here for simplicity; consider moving to a dedicated service module.
+   */
   const loadTasks = async () => {
-    const res = await fetch('http://localhost:5000/tasks');
-    const data = await res.json();
-
-    setTasks(data);
+    try {
+      const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${base}/tasks`);
+      if (!res.ok) throw new Error('Failed to load tasks');
+      const data = await res.json();
+      setTasks(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
     loadTasks();
   }, []);
 
+  /**
+   * Create a new task with selected priority.
+   */
   const addTask = async () => {
-    await fetch('http://localhost:5000/tasks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ title, priority })
-    });
+    try {
+      const base = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${base}/tasks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, priority })
+      });
 
-    setTitle('');
-    setPriority('medium');
-    loadTasks();
+      if (!res.ok) {
+        console.error('Failed to create task');
+        return;
+      }
+
+      setTitle('');
+      setPriority('medium');
+      await loadTasks();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const badgeStyle = (p) => ({
