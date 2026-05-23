@@ -9,155 +9,46 @@ app.use(express.json());
 
 // In-memory task store for demo purposes. Replace with a DB in future.
 let tasks = [];
+const taskController = require('./controllers/task-controller')(() => tasks);
 
 const ALLOWED_PRIORITIES = ['low', 'medium', 'high'];
 
 /**
  * GET /tasks
- * Returns the list of tasks.
- * Kept simple: controllers are thin and can delegate to services later.
+ * Returns the list of tasks. Delegates to controller.
  */
-app.get('/tasks', async (req, res) => {
-  try {
-    res.json(tasks);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+app.get('/tasks', taskController.getAll);
 
 /**
  * POST /tasks
- * Create a task. Body: { title: string, priority?: 'low'|'medium'|'high' }
+ * Create a task. Delegates to controller.
  */
-app.post('/tasks', async (req, res) => {
-  try {
-    const { title, priority } = req.body;
-
-    if (typeof title !== 'string' || !title.trim()) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-
-    if (priority !== undefined && !ALLOWED_PRIORITIES.includes(priority)) {
-      return res.status(400).json({ error: 'Priority must be one of: low, medium, high' });
-    }
-
-    const task = {
-      id: Date.now(),
-      title: title.trim(),
-      completed: false,
-      priority: priority && ALLOWED_PRIORITIES.includes(priority) ? priority : 'medium'
-    };
-
-    tasks.push(task);
-
-    res.status(201).json(task);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+app.post('/tasks', taskController.create);
 
 /**
  * PUT /tasks/:id
- * Toggle completed state for the task. Returns updated task or 404.
+ * Toggle completed state for the task. Delegates to controller.
  */
-app.put('/tasks/:id', async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid task id' });
-
-    const task = tasks.find(t => t.id === id);
-    if (!task) return res.status(404).json({ error: 'Task not found' });
-
-    task.completed = !task.completed;
-    return res.json(task);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+app.put('/tasks/:id', taskController.toggleComplete);
 
 /**
  * DELETE /tasks/:id
- * Remove a task by id.
+ * Remove a task by id. Delegates to controller.
  */
-app.delete('/tasks/:id', async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid task id' });
-
-    const before = tasks.length;
-    tasks = tasks.filter(task => task.id !== id);
-
-    if (tasks.length === before) return res.status(404).json({ error: 'Task not found' });
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+app.delete('/tasks/:id', taskController.delete);
 
 /**
  * PATCH /tasks/:id/title
- * Convenience route to update only the title. Prefer using PATCH /tasks/:id for multiple fields.
+ * Thin route that delegates title update to controller following MVC.
  */
-app.patch('/tasks/:id/title', async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    const { title } = req.body;
+app.patch('/tasks/:id/title', taskController.updateTitle);
 
-    if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid task id' });
-    if (typeof title !== 'string' || !title.trim()) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-
-    const task = tasks.find(t => t.id === id);
-    if (!task) return res.status(404).json({ error: 'Task not found' });
-
-    task.title = title.trim();
-    res.json(task);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
 /**
  * PATCH /tasks/:id
- * Partial update. Accepts { title?, completed?, priority? }.
+ * Partial update. Delegates to controller.
  */
-app.patch('/tasks/:id', async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid task id' });
-
-    const { title, completed, priority } = req.body;
-
-    if (title !== undefined && (typeof title !== 'string' || !title.trim())) {
-      return res.status(400).json({ error: 'Title, if provided, must be a non-empty string' });
-    }
-    if (completed !== undefined && typeof completed !== 'boolean') {
-      return res.status(400).json({ error: 'Completed, if provided, must be boolean' });
-    }
-    if (priority !== undefined && !ALLOWED_PRIORITIES.includes(priority)) {
-      return res.status(400).json({ error: 'Priority, if provided, must be one of low, medium, high' });
-    }
-
-    const task = tasks.find(t => t.id === id);
-    if (!task) return res.status(404).json({ error: 'Task not found' });
-
-    if (title !== undefined) task.title = title.trim();
-    if (completed !== undefined) task.completed = completed;
-    if (priority !== undefined) task.priority = priority;
-
-    res.json(task);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+app.patch('/tasks/:id', taskController.patch);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
