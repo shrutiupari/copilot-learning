@@ -9,9 +9,6 @@ app.use(express.json());
 
 // In-memory task store for demo purposes. Replace with a DB in future.
 let tasks = [];
-const taskController = require('./controllers/task-controller')(() => tasks);
-
-const ALLOWED_PRIORITIES = ['low', 'medium', 'high'];
 
 // Register task routes grouped in routes/tasks.js
 require('./routes/tasks')(app, () => tasks);

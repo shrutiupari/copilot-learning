@@ -1,6 +1,15 @@
 "use strict";
 
-const ALLOWED_PRIORITIES = ['low', 'medium', 'high'];
+const { randomUUID } = require('crypto');
+const { ALLOWED_PRIORITIES } = require('../constants/task');
+
+function validateId(id) {
+  if (typeof id !== 'string' || !id.trim()) {
+    const e = new Error('Invalid task id');
+    e.status = 400;
+    throw e;
+  }
+}
 
 async function getAll(tasks) {
   return tasks;
@@ -19,7 +28,7 @@ async function createTask(tasks, title, priority) {
   }
 
   const task = {
-    id: Date.now(),
+    id: randomUUID(),
     title: title.trim(),
     completed: false,
     priority: priority && ALLOWED_PRIORITIES.includes(priority) ? priority : 'medium'
@@ -30,11 +39,7 @@ async function createTask(tasks, title, priority) {
 }
 
 async function toggleComplete(tasks, id) {
-  if (Number.isNaN(id)) {
-    const e = new Error('Invalid task id');
-    e.status = 400;
-    throw e;
-  }
+  validateId(id);
 
   const task = tasks.find(t => t.id === id);
   if (!task) {
@@ -48,11 +53,7 @@ async function toggleComplete(tasks, id) {
 }
 
 async function deleteTask(tasks, id) {
-  if (Number.isNaN(id)) {
-    const e = new Error('Invalid task id');
-    e.status = 400;
-    throw e;
-  }
+  validateId(id);
 
   const index = tasks.findIndex(t => t.id === id);
   if (index === -1) {
@@ -66,11 +67,7 @@ async function deleteTask(tasks, id) {
 }
 
 async function patchTask(tasks, id, fields) {
-  if (Number.isNaN(id)) {
-    const e = new Error('Invalid task id');
-    e.status = 400;
-    throw e;
-  }
+  validateId(id);
 
   const { title, completed, priority } = fields;
 
@@ -110,11 +107,7 @@ async function updateTitle(tasks, id, title) {
 }
 
 async function updateCategory(tasks, id, category) {
-  if (Number.isNaN(id)) {
-    const e = new Error('Invalid task id');
-    e.status = 400;
-    throw e;
-  }
+  validateId(id);
   if (typeof category !== 'string' || !category.trim()) {
     const e = new Error('Category must be a non-empty string');
     e.status = 400;

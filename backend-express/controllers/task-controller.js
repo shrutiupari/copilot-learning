@@ -2,114 +2,62 @@
 
 const taskService = require('../services/task-service');
 
+function asyncHandler(handler) {
+  return async (req, res) => {
+    try {
+      return await handler(req, res);
+    } catch (err) {
+      if (err && err.status) {
+        return res.status(err.status).json({ error: err.message });
+      }
+      console.error(err);
+      return res.status(500).json({ error: 'Server error' });
+    }
+  };
+}
+
 /**
  * Factory that returns controller methods.
  * getTasks is a function returning the current tasks array.
  */
 module.exports = (getTasks) => {
   return {
-    getAll: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const all = await taskService.getAll(tasks);
-        return res.json(all);
-      } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    },
+    getAll: asyncHandler(async (req, res) => {
+      const all = await taskService.getAll(getTasks());
+      return res.json(all);
+    }),
 
-    create: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const { title, priority } = req.body;
-        const created = await taskService.createTask(tasks, title, priority);
-        return res.status(201).json(created);
-      } catch (err) {
-        if (err && err.status) {
-          return res.status(err.status).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    },
+    create: asyncHandler(async (req, res) => {
+      const { title, priority } = req.body;
+      const created = await taskService.createTask(getTasks(), title, priority);
+      return res.status(201).json(created);
+    }),
 
-    toggleComplete: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const id = Number(req.params.id);
-        const updated = await taskService.toggleComplete(tasks, id);
-        return res.json(updated);
-      } catch (err) {
-        if (err && err.status) {
-          return res.status(err.status).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    },
+    toggleComplete: asyncHandler(async (req, res) => {
+      const updated = await taskService.toggleComplete(getTasks(), req.params.id);
+      return res.json(updated);
+    }),
 
-    delete: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const id = Number(req.params.id);
-        await taskService.deleteTask(tasks, id);
-        return res.json({ success: true });
-      } catch (err) {
-        if (err && err.status) {
-          return res.status(err.status).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    },
+    delete: asyncHandler(async (req, res) => {
+      await taskService.deleteTask(getTasks(), req.params.id);
+      return res.json({ success: true });
+    }),
 
-    patch: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const id = Number(req.params.id);
-        const fields = req.body;
-        const updated = await taskService.patchTask(tasks, id, fields);
-        return res.json(updated);
-      } catch (err) {
-        if (err && err.status) {
-          return res.status(err.status).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    },
+    patch: asyncHandler(async (req, res) => {
+      const updated = await taskService.patchTask(getTasks(), req.params.id, req.body);
+      return res.json(updated);
+    }),
 
-    updateTitle: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const id = Number(req.params.id);
-        const { title } = req.body;
-        const updated = await taskService.updateTitle(tasks, id, title);
-        return res.json(updated);
-      } catch (err) {
-        if (err && err.status) {
-          return res.status(err.status).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    },
+    updateTitle: asyncHandler(async (req, res) => {
+      const { title } = req.body;
+      const updated = await taskService.updateTitle(getTasks(), req.params.id, title);
+      return res.json(updated);
+    }),
 
-    updateCategory: async (req, res) => {
-      try {
-        const tasks = getTasks();
-        const id = Number(req.params.id);
-        const { category } = req.body;
-        const updated = await taskService.updateCategory(tasks, id, category);
-        return res.json(updated);
-      } catch (err) {
-        if (err && err.status) {
-          return res.status(err.status).json({ error: err.message });
-        }
-        console.error(err);
-        return res.status(500).json({ error: 'Server error' });
-      }
-    }
+    updateCategory: asyncHandler(async (req, res) => {
+      const { category } = req.body;
+      const updated = await taskService.updateCategory(getTasks(), req.params.id, category);
+      return res.json(updated);
+    })
   };
 };

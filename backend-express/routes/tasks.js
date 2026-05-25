@@ -8,8 +8,7 @@
  */
 module.exports = (app, getTasks) => {
   const taskController = require('../controllers/task-controller')(getTasks);
-
-  const ALLOWED_PRIORITIES = ['low', 'medium', 'high'];
+  const { ALLOWED_PRIORITIES } = require('../constants/task');
 
   // Validate incoming create task requests to keep controllers thin and provide fast feedback.
   function validateCreate(req, res, next) {
@@ -25,7 +24,7 @@ module.exports = (app, getTasks) => {
 
   app.get('/tasks', taskController.getAll);
   app.post('/tasks', validateCreate, taskController.create);
-  app.put('/tasks/:id', taskController.toggleComplete);
+  app.patch('/tasks/:id/complete', taskController.toggleComplete);
   app.delete('/tasks/:id', taskController.delete);
   app.patch('/tasks/:id/title', taskController.updateTitle);
   app.patch('/tasks/:id/category', taskController.updateCategory);
