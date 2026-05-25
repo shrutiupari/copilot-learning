@@ -1,7 +1,12 @@
+---
+applyTo: "frontend-vue/src/**/*.{js,vue,css}"
+---
+
 # Frontend (frontend-vue) instructions
 
 - Scope: frontend-vue — Vue 3 + Vite.
 - Use the Composition API and script setup. Prefer composables for shared logic.
+- Use Tailwind CSS for UI styling.
 - Keep single-file components (.vue) small and focused; separate template, script, and style concerns.
 - Async logic: use async/await in setup functions or composables; keep side-effects out of templates.
 - File naming: files lowercase-hyphens; component names PascalCase when registered/imported.

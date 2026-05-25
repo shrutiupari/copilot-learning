@@ -9,6 +9,9 @@ POST /tasks
 Creates a task
 
 PUT /tasks/:id
+Legacy route. Prefer PATCH /tasks/:id/complete.
+
+PATCH /tasks/:id/complete
 Toggles completion
 
 DELETE /tasks/:id

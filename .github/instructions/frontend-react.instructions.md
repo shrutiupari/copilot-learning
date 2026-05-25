@@ -1,7 +1,12 @@
+---
+applyTo: "frontend-react/src/**/*.{js,jsx,css}"
+---
+
 # Frontend (frontend-react) instructions
 
 - Scope: frontend-react — React 18 + Vite.
 - Use functional components and hooks. Prefer composition over inheritance.
+- Use Tailwind CSS for UI styling.
 - Keep components small and reusable; separate presentational and container logic.
 - Async logic: use async/await and keep network code in a service layer (api/ services).
 - File & component naming: files lowercase-hyphens, component filenames PascalCase and default-exported.

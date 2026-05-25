@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.{js,jsx,vue}"
+---
+
 # JavaScript Project Instructions
 
 ## Coding Standards
@@ -10,7 +14,7 @@
 - Use MVC pattern for backend
 - Use component-based architecture for frontend
 - Separate concerns in code structure: route handle HTTP requests, service layer for business logic, and data access layer for database interactions, models handle data access and validation, and controllers handle the logic for processing requests and responses.
-- Kepp route handlers thin and delegate to services for business logic
+- Keep route handlers thin and delegate to services for business logic
 
 ## Backend
 - Use Express best practices
@@ -40,7 +44,7 @@
 
 ## Environment & Secrets
 - Store all secrets in .env file and never hardcode them in the codebase
-- Load with `reuire('dotenv').config()`
+- Load with `require('dotenv').config()`
 - Add .env to .gitignore to prevent accidental commits of secrets
 - Never log secrets or sensitive information in console logs or error messages.
 

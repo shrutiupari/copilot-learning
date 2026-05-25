@@ -1,3 +1,7 @@
+---
+applyTo: "backend-express/**/*.js"
+---
+
 # Backend (backend-express) instructions
 
 - Scope: backend-express — Node.js + Express API.
