@@ -27,6 +27,10 @@ const service = require('../services/task-service');
   const updated = await service.updateTitle(tasks, t.id, 'Updated Title');
   assert.strictEqual(updated.title, 'Updated Title');
 
+  // updateCategory
+  const categorized = await service.updateCategory(tasks, t.id, 'work');
+  assert.strictEqual(categorized.category, 'work');
+
   // delete
   await service.deleteTask(tasks, t.id);
   assert.strictEqual(tasks.length, 0);

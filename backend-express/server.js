@@ -45,6 +45,13 @@ app.patch('/tasks/:id/title', taskController.updateTitle);
 
 
 /**
+ * PATCH /tasks/:id/category
+ * Update the category for a task. Delegates to controller.
+ */
+app.patch('/tasks/:id/category', taskController.updateCategory);
+
+
+/**
  * PATCH /tasks/:id
  * Partial update. Delegates to controller.
  */

@@ -109,4 +109,25 @@ async function updateTitle(tasks, id, title) {
   return patchTask(tasks, id, { title });
 }
 
-module.exports = { getAll, createTask, toggleComplete, deleteTask, patchTask, updateTitle };
+async function updateCategory(tasks, id, category) {
+  if (Number.isNaN(id)) {
+    const e = new Error('Invalid task id');
+    e.status = 400;
+    throw e;
+  }
+  if (typeof category !== 'string' || !category.trim()) {
+    const e = new Error('Category must be a non-empty string');
+    e.status = 400;
+    throw e;
+  }
+  const task = tasks.find(t => t.id === id);
+  if (!task) {
+    const e = new Error('Task not found');
+    e.status = 404;
+    throw e;
+  }
+  task.category = category.trim();
+  return task;
+}
+
+module.exports = { getAll, createTask, toggleComplete, deleteTask, patchTask, updateTitle, updateCategory };

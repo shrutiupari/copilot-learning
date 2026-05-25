@@ -94,6 +94,22 @@ module.exports = (getTasks) => {
         console.error(err);
         return res.status(500).json({ error: 'Server error' });
       }
+    },
+
+    updateCategory: async (req, res) => {
+      try {
+        const tasks = getTasks();
+        const id = Number(req.params.id);
+        const { category } = req.body;
+        const updated = await taskService.updateCategory(tasks, id, category);
+        return res.json(updated);
+      } catch (err) {
+        if (err && err.status) {
+          return res.status(err.status).json({ error: err.message });
+        }
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
+      }
     }
   };
 };
